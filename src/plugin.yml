@@ -1,0 +1,4 @@
+name: kidCraft
+main: com.maffiou.kidCraft.KidCraft
+version: 1.0
+commands:

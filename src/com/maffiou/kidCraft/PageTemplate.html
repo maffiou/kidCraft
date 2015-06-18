@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html>
+<head>
+<link rel="stylesheet" type="text/css" href="http://ajax.googleapis.com/ajax/libs/jqueryui/1.11.4/themes/sunny/jquery-ui.css">
+</head>
+<body>
+
+<style media="screen" type="text/css">
+
+table {
+  font-family: "Helvetica Neue", Helvetica, sans-serif
+  align: "center";
+}
+
+caption {
+  text-align: left;
+  color: silver;
+  font-weight: bold;
+  text-transform: uppercase;
+  padding: 5px;
+}
+
+thead {
+  background: SteelBlue;
+  color: white;
+}
+
+th,
+td {
+  padding: 5px 10px;
+  vertical-align: middle;
+}
+
+tbody tr:nth-child(even) {
+  background: WhiteSmoke;
+}
+
+tbody tr td:nth-child(2) {
+  text-align:center;
+}
+
+tbody tr td:nth-child(3),
+tbody tr td:nth-child(4) {
+  text-align: right;
+  font-family: monospace;
+}
+
+tfoot {
+  background: SeaGreen;
+  color: white;
+  text-align: right;
+}
+
+tfoot tr th:last-child {
+  font-family: monospace;
+}
+
+body {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 10px;
+}
+</style>
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+<script src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.11.4/jquery-ui.min.js"></script>
+
+<script>
+$(document).ready(function(){
+
+    $(".toggle").button();
+    $(".myButton").button();
+    $(".status_radio").buttonset();
+    setInterval(function(){ $.get("/ajax?updateAll", processResponse);}, 10*1000);
+
+    $(".clickable").click(function(){
+        $.get("/ajax?id="+this.id,processResponse);
+    });
+
+    function processResponse(data, status) {
+        var res = jQuery.parseJSON(data);
+        for(var i=0;i<res.length;i++) {
+          var key = Object.keys(res[i]);
+          updateUI(key[0],res[i][key[0]]);
+        }
+    }
+
+    function updateUI(id, value) {
+        if(id=="") {
+        } else if((id.lastIndexOf("gift_", 0) === 0)
+            ||(id.lastIndexOf("status_", 0) === 0)) {
+            var elem = $("#"+id);
+            elem.prop('checked',value);
+            elem.button('refresh');
+        } else {
+            $("#"+id).html(value);
+        }
+    }
+
+    $.get("/ajax?updateAll", processResponse);
+});
+
+</script>
+<table>
+<thead><tr><th>Name</th><th>Gift</th><th>play time</th><th>status</th></tr>
+</thead>
+
+%TEMPLATE%
+<tr><td>%NAME%</td><td><input type="checkbox" id="gift_%NAME%" class="toggle clickable"><label for="gift_%NAME%">Gift</label></td><td><button style='float:left;' id="time_minus_%NAME%" class="clickable">-</button><div style='float:left;' id="time_%NAME%"></div><button style='float:left;' id="time_plus_%NAME%" class="clickable">+</button></td><td><div class="status_radio">
+    <input type="radio" id="status_1_%NAME%" class="clickable" name="radio_%NAME%"><label for="status_1_%NAME%">New</label>
+    <input type="radio" id="status_2_%NAME%" class="clickable" name="radio_%NAME%"><label for="status_2_%NAME%">Banned</label>
+    <input type="radio" id="status_3_%NAME%" class="clickable" name="radio_%NAME%"><label for="status_3_%NAME%">Suspended</label>
+    <input type="radio" id="status_4_%NAME%" class="clickable" name="radio_%NAME%"><label for="status_4_%NAME%">Active</label>
+</div></td></tr>
+%TEMPLATE%
+
+
+</table>
+
+</body>
+</html>
