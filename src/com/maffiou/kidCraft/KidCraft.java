@@ -17,6 +17,7 @@ import org.bukkit.event.player.PlayerTeleportEvent.TeleportCause;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.bukkit.scheduler.BukkitScheduler;
 
 public class KidCraft extends JavaPlugin implements Listener, Runnable {
 
@@ -31,6 +32,7 @@ public class KidCraft extends JavaPlugin implements Listener, Runnable {
 	static String webpage = "Empty";
 	static Logger myLog;
 
+	BukkitScheduler bs;
 	PlayerManager pm;
 	HtmlGen ws;
 
@@ -66,7 +68,8 @@ public class KidCraft extends JavaPlugin implements Listener, Runnable {
 
 	@Override
 	public void onEnable() {
-		this.getServer().getScheduler().scheduleSyncRepeatingTask(this, this, 0, 20);
+		bs = this.getServer().getScheduler();
+		bs.scheduleSyncRepeatingTask(this, this, 0, 20);
 
 		config.addDefault("UserList", "");
 
@@ -98,8 +101,9 @@ public class KidCraft extends JavaPlugin implements Listener, Runnable {
 	public void onPlayerQuit(PlayerQuitEvent event) {
 		Player player = event.getPlayer();
 		String playerName = player.getName();
-
-		pm.setPlayerStatus(playerName, SUSPENDED);
+		if(pm.getPlayerStatus(playerName)==ACTIVE) {
+			pm.setPlayerStatus(playerName, SUSPENDED);
+		}
 	}
 
 	@EventHandler
@@ -200,4 +204,36 @@ public class KidCraft extends JavaPlugin implements Listener, Runnable {
 
 		}
 	}
+
+	public void updatePlayerStatus(String player, int newStatus) {
+		/* Not all transitions are acceptable */
+		switch(newStatus) {
+		case BANNED:
+		case SUSPENDED:
+			if(pm.getPlayerStatus(player)==ACTIVE) {
+				bs.runTask(this, new MyKicker(player));
+			}
+			pm.setPlayerStatus(player, newStatus);
+			break;
+		}
+	}
+
+	class MyKicker implements Runnable {
+		String playerToKick;
+		
+		MyKicker(String player) {
+			playerToKick = player;
+		}
+
+		@Override
+		public void run() {
+			try {
+				Bukkit.getPlayerExact(playerToKick).kickPlayer("You've run out of time, go do something else!");
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
+	}
 }
+
+

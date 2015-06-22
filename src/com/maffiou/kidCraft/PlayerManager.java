@@ -46,10 +46,6 @@ public class PlayerManager {
         return config.getInt(player+"_status");
     }
 
-    synchronized void setPlayerRegStatus(String player, int status) {
-        config.set(player+"_RegStatus",status);
-    }
-
     public int getPlayTime(String playerName) {
 
         return config.getInt(playerName+"_time");

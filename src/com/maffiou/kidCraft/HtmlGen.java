@@ -179,7 +179,7 @@ public class HtmlGen {
 				else if(m5.matches()) {
 					String player = m5.group(2);
 					int newStatus = Integer.parseInt(m5.group(1));
-					myPlugIn.pm.setPlayerStatus(player, newStatus);
+					myPlugIn.updatePlayerStatus(player, newStatus);
 					sendResponse(t,"{\"status_"+myPlugIn.pm.getPlayerStatus(player)+"_"+player+"\":true}");
 				}
 				else {
